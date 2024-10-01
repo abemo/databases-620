@@ -22,6 +22,7 @@ def get_data():
     response = requests.get(API_ROUTE, headers={"X-Api-Key": EIA_API_KEY})
     if response.status_code == 200:
         data = response.json()
+        # print(data['response']['data'])
         return data['response']['data']
     else:
         print(f"Error: {response.status_code}")
@@ -45,9 +46,14 @@ def write_to_db(data):
                         unit TEXT)''')
 
     for index, row in data.iterrows():
+        value = row['value'] 
+        
+        if value == 'w' or value == '--':
+            value = None
+            
         cursor.execute('''INSERT INTO energy_data (country, period, energy_source, value, unit) 
                           VALUES (?, ?, ?, ?, ?)''', 
-                          (row['countryRegionName'], row['period'], row['productName'], row['value'], row['unit']))
+                          (row['countryRegionName'], row['period'], row['productName'], value, row['unit']))
 
     conn.commit()
     conn.close()
@@ -68,7 +74,7 @@ def query_data():
     conn.close()
 
 def main():
-    # retrieve_and_write_data()
+    retrieve_and_write_data()
     query_data()
 
 if __name__ == "__main__":
