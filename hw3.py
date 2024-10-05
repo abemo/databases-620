@@ -22,7 +22,6 @@ def get_data():
     response = requests.get(API_ROUTE, headers={"X-Api-Key": EIA_API_KEY})
     if response.status_code == 200:
         data = response.json()
-        # print(data['response']['data'])
         return data['response']['data']
     else:
         print(f"Error: {response.status_code}")
@@ -30,7 +29,7 @@ def get_data():
 
 def sort_data(data):
     df = pd.DataFrame(data)
-    # Sort by period
+    # Sort by time period
     df_sorted = df.sort_values(by='period', ascending=False)
     return df_sorted
 
@@ -45,7 +44,7 @@ def write_to_db(data):
                         value REAL,
                         unit TEXT)''')
 
-    for index, row in data.iterrows():
+    for _, row in data.iterrows():
         value = row['value'] 
         
         if value == 'w' or value == '--':
